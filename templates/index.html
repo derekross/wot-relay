@@ -53,7 +53,7 @@
 
         {{if .FundingEnabled}}
         <!-- ===================== Monthly funding goal ===================== -->
-        <section id="funding" class="mt-12 text-left bg-gray-800 rounded-2xl p-6 md:p-8 shadow-xl border border-gray-700">
+        <section id="funding" class="mt-12 text-left overflow-hidden bg-gray-800 rounded-2xl p-6 md:p-8 shadow-xl border border-gray-700">
           <div class="flex flex-wrap items-center justify-between gap-3 mb-2">
             <h2 class="text-2xl font-bold text-purple-300">⚡ Monthly funding goal</h2>
             <span id="status-pill" class="text-sm font-semibold px-3 py-1 rounded-full bg-gray-700 text-gray-300">loading…</span>
@@ -123,10 +123,10 @@
             <ul id="contributors" class="divide-y divide-gray-700 text-sm"></ul>
           </div>
 
-          <p class="text-xs text-gray-500 mt-6">
-            Zaps go to <span class="text-gray-300">{{.FundingLightning}}</span>. You can also zap the goal from any nostr client:
+          <p class="text-xs text-gray-500 mt-6 break-words">
+            Zaps go to <span class="text-gray-300 break-all">{{.FundingLightning}}</span>. You can also zap the goal from any nostr client:
             <a id="goal-link" href="#" class="text-purple-300 underline">open the goal</a> ·
-            funding identity <a href="nostr:{{.FundingNpub}}" class="text-purple-300 underline">{{.FundingNpub}}</a>
+            funding identity <a href="nostr:{{.FundingNpub}}" class="text-purple-300 underline break-all">{{.FundingNpub}}</a>
           </p>
         </section>
         {{end}}
