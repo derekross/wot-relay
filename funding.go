@@ -375,9 +375,14 @@ func (f *funding) findGoal(start, end time.Time) *nostr.Event {
 		Until:   nostr.Timestamp(end.Unix() - 1),
 		Limit:   10,
 	}
+	want := strconv.FormatUint(f.cfg.goalMsat(), 10)
 	var best *nostr.Event
 	for evt := range f.db.QueryEvents(filter, 10) {
 		e := evt
+		// a goal published for a different FUNDING_GOAL_SATS is stale
+		if amt := e.Tags.Find("amount"); amt == nil || amt[1] != want {
+			continue
+		}
 		if best == nil || e.CreatedAt > best.CreatedAt {
 			best = &e
 		}
