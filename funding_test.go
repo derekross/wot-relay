@@ -378,6 +378,18 @@ func TestGoalRelaysAndRejectReason(t *testing.T) {
 	if relays[0] != "wss://relay.test" || len(relays) != 3 {
 		t.Fatalf("goalRelays = %v", relays)
 	}
+
+	// a local/plain-ws relay URL is left out so providers never stall on it
+	f.cfg.RelayURL = "ws://localhost:3334"
+	relays = f.goalRelays()
+	if len(relays) != 2 || relays[0] != "wss://seed.one" {
+		t.Fatalf("goalRelays with local url = %v", relays)
+	}
+	for url, want := range map[string]bool{"wss://relay.test": true, "wss://relay.test:443/": true, "ws://relay.test": false, "wss://localhost:3334": false, "wss://127.0.0.1": false} {
+		if publiclyReachable(url) != want {
+			t.Errorf("publiclyReachable(%q) = %v", url, !want)
+		}
+	}
 	if msg := f.rejectReason(); msg == "" || msg[:4] != "this" {
 		t.Fatalf("rejectReason = %q", msg)
 	}

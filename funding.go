@@ -262,6 +262,9 @@ func (f *funding) locked() bool {
 func (f *funding) run(ctx context.Context) {
 	log.Printf("⚡ funding goal enabled: %d sats/month, grace %d day(s), timezone %s", f.cfg.GoalSats, f.cfg.GraceDays, f.cfg.Timezone)
 	log.Printf("⚡ funding identity: %s (zaps go to %s)", nip19.EncodeNpub(f.pk), f.cfg.LightningAddress)
+	if !publiclyReachable(f.cfg.RelayURL) {
+		log.Printf("⚠️  funding: RELAY_URL %s is not reachable by lightning providers; zap receipts will only arrive via the seed relays", f.cfg.RelayURL)
+	}
 
 	f.ensureProfile(ctx)
 	f.startPeriod(ctx)
@@ -364,13 +367,34 @@ func (f *funding) findGoal(start, end time.Time) *nostr.Event {
 	return best
 }
 
+// publiclyReachable reports whether a relay URL can be reached by a
+// lightning provider on the internet (i.e. it is a wss:// URL and not localhost).
+func publiclyReachable(relayURL string) bool {
+	u := strings.ToLower(strings.TrimSpace(relayURL))
+	if !strings.HasPrefix(u, "wss://") {
+		return false
+	}
+	host := strings.TrimPrefix(u, "wss://")
+	if i := strings.IndexAny(host, "/:"); i >= 0 {
+		host = host[:i]
+	}
+	return host != "localhost" && host != "127.0.0.1" && host != "::1"
+}
+
+// goalRelays is the relay list put in the goal event and in zap requests:
+// the relays a lightning provider should deliver receipts to. Our own URL
+// goes first when a provider can reach it; otherwise it is left out (a
+// provider that cannot reach the first relay may give up on the rest).
 func (f *funding) goalRelays() []string {
-	relays := []string{f.cfg.RelayURL}
+	var relays []string
+	if publiclyReachable(f.cfg.RelayURL) {
+		relays = append(relays, f.cfg.RelayURL)
+	}
 	for _, r := range f.cfg.SeedRelays {
 		if len(relays) >= 6 {
 			break
 		}
-		if r != f.cfg.RelayURL {
+		if r != f.cfg.RelayURL && !containsString(relays, r) {
 			relays = append(relays, r)
 		}
 	}
