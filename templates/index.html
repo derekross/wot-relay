@@ -82,7 +82,7 @@
                 class="flex-1 rounded-lg bg-gray-900 border border-gray-600 px-4 py-2 focus:outline-none focus:border-purple-400" />
               <input id="comment" type="text" maxlength="280" placeholder="comment (optional)"
                 class="flex-1 rounded-lg bg-gray-900 border border-gray-600 px-4 py-2 focus:outline-none focus:border-purple-400" />
-              <button id="zap-btn" class="px-6 py-2 rounded-lg bg-purple-600 hover:bg-purple-500 font-semibold transition">Zap the relay ⚡</button>
+              <button id="zap-btn" class="px-6 py-2 rounded-lg bg-purple-600 hover:bg-purple-500 font-semibold transition">Zap ⚡</button>
             </div>
             <label id="nip07-row" class="hidden items-center gap-2 mt-3 text-sm text-gray-300 cursor-pointer">
               <input id="nip07" type="checkbox" class="accent-purple-500" checked />
@@ -298,7 +298,7 @@
           } catch (e) {
             showError(e.message || String(e));
           } finally {
-            btn.disabled = false; btn.textContent = "Zap the relay ⚡";
+            btn.disabled = false; btn.textContent = "Zap ⚡";
           }
         }
 
