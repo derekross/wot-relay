@@ -49,6 +49,25 @@ type fundingConfig struct {
 	RelayURL   string
 	RelayIcon  string
 	SeedRelays []string
+	// Relays is where zap receipts are delivered to and tallied from (the
+	// "relays" tag of the goal and of every zap request). Defaults to the
+	// seed relays minus known profile-only relays that reject receipts.
+	Relays []string
+}
+
+// profileOnlyRelays reject everything but kind 0/3/10002, so a lightning
+// provider publishing a receipt there gets an error. Keep them out of the
+// receipt delivery list unless the operator asks for them explicitly.
+var profileOnlyRelays = []string{"wss://purplepag.es"}
+
+func defaultFundingRelays(seed []string) []string {
+	out := make([]string, 0, len(seed))
+	for _, r := range seed {
+		if !containsString(profileOnlyRelays, strings.TrimSuffix(r, "/")) {
+			out = append(out, r)
+		}
+	}
+	return out
 }
 
 func (c fundingConfig) enabled() bool { return c.GoalSats > 0 }
@@ -114,6 +133,11 @@ func loadFundingConfig(main Config) fundingConfig {
 		RelayURL:         main.RelayURL,
 		RelayIcon:        main.RelayIcon,
 		SeedRelays:       main.SeedRelays,
+	}
+	if fr := strings.TrimSpace(getenvDefault("FUNDING_RELAYS", "")); fr != "" {
+		c.Relays = splitAndTrim(fr)
+	} else {
+		c.Relays = defaultFundingRelays(main.SeedRelays)
 	}
 	if c.Name == "" {
 		c.Name = main.RelayName + " Fund"
@@ -390,7 +414,7 @@ func (f *funding) goalRelays() []string {
 	if publiclyReachable(f.cfg.RelayURL) {
 		relays = append(relays, f.cfg.RelayURL)
 	}
-	for _, r := range f.cfg.SeedRelays {
+	for _, r := range f.cfg.Relays {
 		if len(relays) >= 6 {
 			break
 		}

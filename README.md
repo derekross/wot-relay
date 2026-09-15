@@ -270,6 +270,7 @@ FUNDING_LIGHTNING_ADDRESS="you@getalby.com" # must support nostr zaps (allowsNos
 FUNDING_GRACE_DAYS=3                        # writes stay open this many days into each month (default 3)
 FUNDING_TIMEZONE="UTC"                      # IANA zone for month boundaries (default UTC)
 FUNDING_NAME=""                             # profile name of the funding identity (default "<RELAY_NAME> Fund")
+FUNDING_RELAYS=""                           # relays receipts are delivered to / tallied from (default: seed relays minus profile-only ones)
 ```
 
 Generate a fresh key for `FUNDING_SECRET_KEY`, for example with `openssl rand -hex 32` or `nak key generate`.

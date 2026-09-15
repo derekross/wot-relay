@@ -67,6 +67,7 @@ func newTestFunding(t *testing.T, goalSats uint64, graceDays int) (f *funding, p
 			RelayName:        "Test WoT",
 			RelayURL:         "wss://relay.test",
 			SeedRelays:       []string{"wss://seed.one", "wss://seed.two"},
+			Relays:           []string{"wss://seed.one", "wss://seed.two"},
 		},
 		sk:           sk,
 		pk:           sk.Public(),
@@ -361,6 +362,10 @@ func TestHelpers(t *testing.T) {
 		if got := lnurlpEndpoint(n, d); got != want {
 			t.Errorf("lnurlpEndpoint(%q) = %q want %q", in, got, want)
 		}
+	}
+	got := defaultFundingRelays([]string{"wss://nos.lol", "wss://purplepag.es", "wss://purplepag.es/", "wss://relay.damus.io"})
+	if len(got) != 2 || got[0] != "wss://nos.lol" || got[1] != "wss://relay.damus.io" {
+		t.Errorf("defaultFundingRelays = %v", got)
 	}
 	if !containsAny([]string{"a", "b"}, []string{"x", "b"}) || containsAny([]string{"a"}, []string{"x"}) {
 		t.Error("containsAny")
