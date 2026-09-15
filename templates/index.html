@@ -265,7 +265,9 @@
         }
 
         async function buildNip07ZapRequest(sats, comment) {
-          const relays = [RELAY_URL];
+          // same list the server puts in its own zap requests: relays the
+          // lightning provider can actually reach and the relay tallies from
+          const relays = (status && status.relays && status.relays.length) ? status.relays : [RELAY_URL];
           const evt = {
             kind: 9734,
             created_at: Math.floor(Date.now() / 1000),

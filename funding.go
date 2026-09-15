@@ -893,6 +893,7 @@ type fundingStatus struct {
 	LightningAddress string               `json:"lightning_address"`
 	RelayURL         string               `json:"relay_url"`
 	ZapCount         int                  `json:"zap_count"`
+	Relays           []string             `json:"relays"`
 	Contributors     []fundingContributor `json:"contributors"`
 	Now              int64                `json:"now"`
 }
@@ -915,6 +916,7 @@ func (f *funding) status() fundingStatus {
 		LightningAddress: f.cfg.LightningAddress,
 		RelayURL:         f.cfg.RelayURL,
 		ZapCount:         f.zapCount,
+		Relays:           f.goalRelays(),
 		Now:              f.now().Unix(),
 	}
 	if f.goal != nil {
@@ -1060,8 +1062,8 @@ func (f *funding) handleInvoice(w http.ResponseWriter, r *http.Request) {
 			fail(http.StatusBadRequest, "zap_request amount does not match amount_sats")
 			return
 		}
-		if rl := zapReq.Tags.Find("relays"); rl == nil || !containsString(rl[1:], f.cfg.RelayURL) {
-			fail(http.StatusBadRequest, "zap_request relays tag must include "+f.cfg.RelayURL)
+		if rl := zapReq.Tags.Find("relays"); rl == nil || !containsAny(rl[1:], f.goalRelays()) {
+			fail(http.StatusBadRequest, "zap_request relays tag must include at least one of: "+strings.Join(f.goalRelays(), ", "))
 			return
 		}
 	} else {
@@ -1118,6 +1120,15 @@ func (f *funding) registerRoutes(mux *http.ServeMux) {
 func containsString(list []string, s string) bool {
 	for _, v := range list {
 		if v == s {
+			return true
+		}
+	}
+	return false
+}
+
+func containsAny(list, wanted []string) bool {
+	for _, w := range wanted {
+		if containsString(list, w) {
 			return true
 		}
 	}

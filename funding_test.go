@@ -362,6 +362,9 @@ func TestHelpers(t *testing.T) {
 			t.Errorf("lnurlpEndpoint(%q) = %q want %q", in, got, want)
 		}
 	}
+	if !containsAny([]string{"a", "b"}, []string{"x", "b"}) || containsAny([]string{"a"}, []string{"x"}) {
+		t.Error("containsAny")
+	}
 	if pct(150, 100) != 100 || pct(50, 100) != 50 || pct(1, 0) != 0 {
 		t.Error("pct")
 	}
