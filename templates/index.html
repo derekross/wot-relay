@@ -20,6 +20,13 @@
       }
       #qr img, #qr canvas { margin: 0 auto; }
       .bar { transition: width 0.6s ease; }
+      #zap-btn { min-width: 6.5rem; white-space: nowrap; }
+      .spinner {
+        display: inline-block; width: 1em; height: 1em; vertical-align: -0.15em;
+        border: 2px solid rgba(255,255,255,0.35); border-top-color: #fff; border-radius: 50%;
+        animation: spin 0.7s linear infinite;
+      }
+      @keyframes spin { to { transform: rotate(360deg); } }
     </style>
   </head>
   <body class="bg-gray-900 text-white">
@@ -282,7 +289,7 @@
           if (!status || !status.goal_event_id) return showError("The goal is still starting up, try again in a moment.");
 
           const btn = $("zap-btn");
-          btn.disabled = true; btn.textContent = "Creating invoice…";
+          btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>';
           try {
             const body = { amount_sats: sats, comment };
             if (window.nostr && $("nip07").checked) {
@@ -298,7 +305,7 @@
           } catch (e) {
             showError(e.message || String(e));
           } finally {
-            btn.disabled = false; btn.textContent = "Zap ⚡";
+            btn.disabled = false; btn.innerHTML = "Zap ⚡";
           }
         }
 
