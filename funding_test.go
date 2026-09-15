@@ -363,10 +363,6 @@ func TestHelpers(t *testing.T) {
 			t.Errorf("lnurlpEndpoint(%q) = %q want %q", in, got, want)
 		}
 	}
-	got := defaultFundingRelays([]string{"wss://nos.lol", "wss://purplepag.es", "wss://purplepag.es/", "wss://relay.damus.io"})
-	if len(got) != 2 || got[0] != "wss://nos.lol" || got[1] != "wss://relay.damus.io" {
-		t.Errorf("defaultFundingRelays = %v", got)
-	}
 	if !containsAny([]string{"a", "b"}, []string{"x", "b"}) || containsAny([]string{"a"}, []string{"x"}) {
 		t.Error("containsAny")
 	}

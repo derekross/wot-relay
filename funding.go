@@ -50,24 +50,18 @@ type fundingConfig struct {
 	RelayIcon  string
 	SeedRelays []string
 	// Relays is where zap receipts are delivered to and tallied from (the
-	// "relays" tag of the goal and of every zap request). Defaults to the
-	// seed relays minus known profile-only relays that reject receipts.
+	// "relays" tag of the goal and of every zap request).
 	Relays []string
 }
 
-// profileOnlyRelays reject everything but kind 0/3/10002, so a lightning
-// provider publishing a receipt there gets an error. Keep them out of the
-// receipt delivery list unless the operator asks for them explicitly.
-var profileOnlyRelays = []string{"wss://purplepag.es"}
-
-func defaultFundingRelays(seed []string) []string {
-	out := make([]string, 0, len(seed))
-	for _, r := range seed {
-		if !containsString(profileOnlyRelays, strings.TrimSuffix(r, "/")) {
-			out = append(out, r)
-		}
-	}
-	return out
+// defaultFundingRelays are big general-purpose relays that accept zap
+// receipts; lightning providers deliver receipts there and the relay tallies
+// from them. Override with FUNDING_RELAYS.
+var defaultFundingRelays = []string{
+	"wss://relay.ditto.pub",
+	"wss://relay.primal.net",
+	"wss://relay.damus.io",
+	"wss://nos.lol",
 }
 
 func (c fundingConfig) enabled() bool { return c.GoalSats > 0 }
@@ -137,7 +131,7 @@ func loadFundingConfig(main Config) fundingConfig {
 	if fr := strings.TrimSpace(getenvDefault("FUNDING_RELAYS", "")); fr != "" {
 		c.Relays = splitAndTrim(fr)
 	} else {
-		c.Relays = defaultFundingRelays(main.SeedRelays)
+		c.Relays = defaultFundingRelays
 	}
 	if c.Name == "" {
 		c.Name = main.RelayName + " Fund"
